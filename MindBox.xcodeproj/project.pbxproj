@@ -8,18 +8,19 @@
 
 /* Begin PBXBuildFile section */
 		1D560A2D2BFB32370081FFDF /* MindBoxApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D560A2C2BFB32370081FFDF /* MindBoxApp.swift */; };
-		1D560A2F2BFB32370081FFDF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D560A2E2BFB32370081FFDF /* ContentView.swift */; };
 		1D560A312BFB32380081FFDF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1D560A302BFB32380081FFDF /* Assets.xcassets */; };
 		1D560A352BFB32380081FFDF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1D560A342BFB32380081FFDF /* Preview Assets.xcassets */; };
+		1D560A3E2BFB4FB60081FFDF /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 1D560A3D2BFB4FB60081FFDF /* AppFeature */; };
+		1D560A402BFB504C0081FFDF /* Database in Frameworks */ = {isa = PBXBuildFile; productRef = 1D560A3F2BFB504C0081FFDF /* Database */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1D560A292BFB32370081FFDF /* MindBox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MindBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D560A2C2BFB32370081FFDF /* MindBoxApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MindBoxApp.swift; sourceTree = "<group>"; };
-		1D560A2E2BFB32370081FFDF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1D560A302BFB32380081FFDF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1D560A322BFB32380081FFDF /* MindBox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MindBox.entitlements; sourceTree = "<group>"; };
 		1D560A342BFB32380081FFDF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		1D560A3B2BFB33A10081FFDF /* MindBoxPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MindBoxPackage; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -27,6 +28,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1D560A3E2BFB4FB60081FFDF /* AppFeature in Frameworks */,
+				1D560A402BFB504C0081FFDF /* Database in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -36,8 +39,10 @@
 		1D560A202BFB32370081FFDF = {
 			isa = PBXGroup;
 			children = (
+				1D560A3B2BFB33A10081FFDF /* MindBoxPackage */,
 				1D560A2B2BFB32370081FFDF /* MindBox */,
 				1D560A2A2BFB32370081FFDF /* Products */,
+				1D560A3C2BFB4FB60081FFDF /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -53,7 +58,6 @@
 			isa = PBXGroup;
 			children = (
 				1D560A2C2BFB32370081FFDF /* MindBoxApp.swift */,
-				1D560A2E2BFB32370081FFDF /* ContentView.swift */,
 				1D560A302BFB32380081FFDF /* Assets.xcassets */,
 				1D560A322BFB32380081FFDF /* MindBox.entitlements */,
 				1D560A332BFB32380081FFDF /* Preview Content */,
@@ -67,6 +71,13 @@
 				1D560A342BFB32380081FFDF /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		1D560A3C2BFB4FB60081FFDF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -85,6 +96,10 @@
 			dependencies = (
 			);
 			name = MindBox;
+			packageProductDependencies = (
+				1D560A3D2BFB4FB60081FFDF /* AppFeature */,
+				1D560A3F2BFB504C0081FFDF /* Database */,
+			);
 			productName = MindBox;
 			productReference = 1D560A292BFB32370081FFDF /* MindBox.app */;
 			productType = "com.apple.product-type.application";
@@ -139,7 +154,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1D560A2F2BFB32370081FFDF /* ContentView.swift in Sources */,
 				1D560A2D2BFB32370081FFDF /* MindBoxApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -284,10 +298,10 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lambert.MindBox;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -322,10 +336,10 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lambert.MindBox;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -359,6 +373,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1D560A3D2BFB4FB60081FFDF /* AppFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppFeature;
+		};
+		1D560A3F2BFB504C0081FFDF /* Database */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Database;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1D560A212BFB32370081FFDF /* Project object */;
 }
