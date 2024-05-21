@@ -77,6 +77,8 @@ public struct BoxRowLogic {
         return .run { [box = state.box] _ in
           @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
           boxes.remove(id: box.id)
+          @Shared(.fileStorage(.thoughts)) var thoughts: IdentifiedArrayOf<Thought> = []
+          thoughts.removeAll(where: { $0.boxId == box.id })
         }
         
       case .destination:
@@ -128,9 +130,6 @@ public struct BoxRowView: View {
       }
     }
     .confirmationDialog($store.scope(state: \.destination?.deleteConfirmDialog, action: \.destination.deleteConfirmDialog))
-//    .sheet(item: $store.scope(state: \.destination?.editFolder, action: \.destination.editFolder)) { editStore in
-//
-//    }
     .bind($store.focus, to: $focus)
   }
 }

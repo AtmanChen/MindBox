@@ -21,12 +21,18 @@ let package = Package(
     .library(
       name: "BoxRowFeature",
       targets: ["BoxRowFeature"]),
+    .library(
+      name: "Components",
+      targets: ["Components"]),
 //    .library(
 //      name: "Database",
 //      targets: ["Database"]),
     .library(
       name: "Models",
       targets: ["Models"]),
+    .library(
+      name: "ThoughtListFeature",
+      targets: ["ThoughtListFeature"]),
     .library(
       name: "Utils",
       targets: ["Utils"]),
@@ -40,23 +46,28 @@ let package = Package(
     // Targets can depend on other targets in this package and products from dependencies.
     .target(name: "AppFeature", dependencies: [
       "Models",
-//      "Database",
       "BoxListFeature",
       "Utils",
+      "ThoughtListFeature",
       .SCA,
     ]),
     .target(name: "BoxListFeature", dependencies: [
       "Models",
-//      "Database",
       "BoxRowFeature",
       "Utils",
+      "Components",
       .SCA,
     ]),
     .target(name: "BoxRowFeature", dependencies: [
       "Models",
-//      "Database",
       "Utils",
+      "Components",
       .SCA,
+    ]),
+    .target(name: "Components", dependencies: [
+      .SCA,
+      "Utils",
+      "Models",
     ]),
     .target(
       name: "Database",
@@ -67,6 +78,15 @@ let package = Package(
     .target(
       name: "Models",
       dependencies: [
+        .SCA,
+        .TAGGED,
+      ]
+    ),
+    .target(
+      name: "ThoughtListFeature",
+      dependencies: [
+        "Models",
+        "Utils",
         .SCA,
         .TAGGED,
       ]

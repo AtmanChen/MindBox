@@ -11,6 +11,7 @@ import Models
 import SwiftUI
 import SwiftData
 import Utils
+import Components
 
 @Reducer
 public struct RecursiveBoxRow {
@@ -29,12 +30,14 @@ public struct RecursiveBoxRow {
     var showSubBoxes = true
     @Shared(.inMemory("refreshBoxLocation")) var refreshBoxLocation: RefreshBoxLocation?
     @Presents var destination: Destination.State?
+    var themePicker: BoxThemePicker.State
     public init(box: Shared<Box>) {
       self._box = box
       let boxId = box.wrappedValue.id
       @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
       let subBoxes = try? boxes.filter(#Predicate { $0.parentBoxId == boxId })
       self._subBoxes = Shared(IdentifiedArrayOf(uniqueElements: subBoxes ?? []))
+      self.themePicker = BoxThemePicker.State(box: box.wrappedValue)
     }
   }
 
@@ -42,11 +45,14 @@ public struct RecursiveBoxRow {
     case binding(BindingAction<State>)
     case destination(PresentationAction<Destination.Action>)
     case onAppear
-    case themeButtonTapped
+    case themePicker(BoxThemePicker.Action)
     case toggleShowSubBoxes
   }
 
   public var body: some ReducerOf<Self> {
+    Scope(state: \.themePicker, action: \.themePicker) {
+      BoxThemePicker()
+    }
     Reduce { state, action in
       switch action {
       case .binding:
@@ -58,8 +64,7 @@ public struct RecursiveBoxRow {
       case .onAppear:
         return .none
         
-      case .themeButtonTapped:
-        state.destination = .themePicker(BoxThemePicker.State(box: state.box))
+      case .themePicker:
         return .none
 
       case .toggleShowSubBoxes:
@@ -79,19 +84,12 @@ public struct RecursiveBoxRowView: View {
 
   public var body: some View {
     HStack {
-      Button {
-        store.send(.themeButtonTapped)
-      } label: {
-        Circle()
-          .fill(Color(hex: store.box.color.rawValue) ?? .primary)
-      }
-      .buttonStyle(.plain)
-      .frame(width: 16, height: 16)
-      .shadow(color: .primary, radius: 4)
-      .popover(item: $store.scope(state: \.destination?.themePicker, action: \.destination.themePicker)) { themePickerStore in
-        BoxThemePickerView(store: themePickerStore)
-      }
-      
+      BoxThemePickerView(
+        store: store.scope(
+          state: \.themePicker,
+          action: \.themePicker
+        )
+      )
       BoxRowView(
         store: Store(
           initialState: BoxRowLogic.State(box: store.$box),
@@ -101,7 +99,7 @@ public struct RecursiveBoxRowView: View {
       Spacer()
       if store.subBoxes.count > 0 {
         Button {
-          store.send(.toggleShowSubBoxes, animation: .snappy)
+          store.send(.toggleShowSubBoxes, animation: .bouncy)
         } label: {
           Image(systemName: "chevron.right")
             .rotationEffect(.degrees(store.showSubBoxes ? 90 : 0))
@@ -114,7 +112,7 @@ public struct RecursiveBoxRowView: View {
     .onAppear {
       store.send(.onAppear)
     }
-    .tag(store.box)
+    .tag(store.box.id.uuidString)
 
     if store.subBoxes.count > 0,
        store.showSubBoxes {

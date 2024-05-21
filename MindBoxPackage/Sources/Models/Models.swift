@@ -5,6 +5,11 @@ import Tagged
 // public typealias Box = MindBoxSchemaV1.Box
 // public typealias Thought = MindBoxSchemaV1.Thought
 
+public enum MindBoxSelectionUpdate: Hashable {
+  case box(boxIdString: String?)
+  case thought(thoughtIdString: String?)
+}
+
 public enum RefreshBoxLocation: Hashable {
   case root
   case box(UUID)
@@ -19,31 +24,6 @@ public extension URL {
 
   static let thoughts = Self.documentsDirectory.appending(component: "thoughts.json")
 }
-
-// public struct BoxThemeColor: OptionSet, Identifiable, Codable, Hashable {
-//  public var id: Self { self }
-//  public let rawValue: Int
-//  public init(rawValue: Int) {
-//    self.rawValue = rawValue
-//  }
-//
-//  public static let pastel = BoxThemeColor(rawValue: 1 << 0)
-//  public static let gold = BoxThemeColor(rawValue: 1 << 1)
-//
-//  public enum Pastel: Int, CaseIterable, Codable {
-//    case lemonSorbet = 0xEADFB4
-//    case morningMist = 0x9BB0C1
-//    case twilightBlues = 0x51829B
-//    case mangoMousse = 0xF6995C
-//  }
-//
-//  public enum Gold: Int, CaseIterable, Codable {
-//    case midnightDream = 0x5F0F40
-//    case twilightGlow = 0xFB8B24
-//    case flamencoFlame = 0xE36414
-//    case agateBrown = 0x9A031E
-//  }
-// }
 
 public enum BoxThemeColor: Identifiable, Codable, CaseIterable, Hashable, CustomStringConvertible {
   public var id: Self { self }
@@ -73,7 +53,7 @@ public enum BoxThemeColor: Identifiable, Codable, CaseIterable, Hashable, Custom
       return color.rawValue
     }
   }
-  
+
   public var description: String {
     switch self {
     case .pastel: return "Pastel"
@@ -88,7 +68,7 @@ public enum BoxThemeColor: Identifiable, Codable, CaseIterable, Hashable, Custom
       .gold($0)
     }
   }
-  
+
   public static var sectionCases: [[BoxThemeColor]] {
     [
       Pastel.allCases.map { .pastel($0) },
@@ -120,23 +100,48 @@ public struct Box: Equatable, Identifiable, Codable, Hashable {
   }
 }
 
+public enum Status: Identifiable, CaseIterable, Codable, CustomStringConvertible, Hashable {
+  case active
+  case archived
+  case custom(String)
+
+  public var id: Self { self }
+  public var description: String {
+    switch self {
+    case .active: return "ACTIVE"
+    case .archived: return "ARCHIVED"
+    case .custom(let status): return status.uppercased()
+    }
+  }
+  public static var allCases: [Status] {
+    [.active, .archived, .custom("自定义")]
+  }
+}
+
 public struct Thought: Equatable, Identifiable, Codable, Hashable {
   public let id: UUID
   public var boxId: UUID
-  public var title: String = "New Thought"
+  public var title: String
+  public var body: String
   public var updateDate: Date
+  public var status: Status
 
-  public init(id: UUID, boxId: UUID, updateDate: Date) {
+  public init(id: UUID, boxId: UUID, title: String = "New Thought", body: String = "Handle your thought", updateDate: Date, status: Status = .active) {
     self.id = id
     self.boxId = boxId
+    self.title = title
+    self.body = body
     self.updateDate = updateDate
+    self.status = status
   }
 
   public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
     hasher.combine(boxId)
     hasher.combine(title)
+    hasher.combine(body)
     hasher.combine(updateDate)
+    hasher.combine(status)
   }
 }
 

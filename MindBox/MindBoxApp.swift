@@ -27,7 +27,6 @@ struct MindBoxApp: App {
           initialState: AppLogic.State(),
           reducer: {
             AppLogic()
-              ._printChanges()
           }
         )
       )

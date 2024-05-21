@@ -19,7 +19,8 @@ public struct BoxListLogic {
   public struct State: Equatable {
     public init() {}
     @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
-    @Shared(.inMemory("selectedBox")) var selectedBox: Box?
+    @Shared(.fileStorage(.thoughts)) var thoughts: IdentifiedArrayOf<Thought> = []
+    @Shared(.appStorage("selectedBoxId")) var selectedBoxId: String?
     @Shared(.inMemory("refreshBoxLocation")) var refreshBoxLocation: RefreshBoxLocation?
   }
   
@@ -58,7 +59,7 @@ public struct BoxListView: View {
     self.store = store
   }
   public var body: some View {
-    List(selection: $store.selectedBox) {
+    List(selection: $store.selectedBoxId) {
       ForEach(store.$boxes.elements.filter { $0.wrappedValue.parentBoxId == nil }) { $box in
         RecursiveBoxRowView(
           store: Store(
