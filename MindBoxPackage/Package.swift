@@ -27,6 +27,9 @@ let package = Package(
     .library(
       name: "Models",
       targets: ["Models"]),
+    .library(
+      name: "Utils",
+      targets: ["Utils"]),
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.10.1"),
@@ -39,17 +42,20 @@ let package = Package(
       "Models",
 //      "Database",
       "BoxListFeature",
+      "Utils",
       .SCA,
     ]),
     .target(name: "BoxListFeature", dependencies: [
       "Models",
 //      "Database",
       "BoxRowFeature",
+      "Utils",
       .SCA,
     ]),
     .target(name: "BoxRowFeature", dependencies: [
       "Models",
 //      "Database",
+      "Utils",
       .SCA,
     ]),
     .target(
@@ -63,6 +69,11 @@ let package = Package(
       dependencies: [
         .SCA,
         .TAGGED,
+      ]
+    ),
+    .target(
+      name: "Utils",
+      dependencies: [
       ]
     ),
     .testTarget(

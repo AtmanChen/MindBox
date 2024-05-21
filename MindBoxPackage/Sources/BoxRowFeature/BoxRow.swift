@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Models
 import SwiftUI
+import Utils
 
 @Reducer
 public struct BoxRowLogic {
@@ -28,9 +29,11 @@ public struct BoxRowLogic {
   @ObservableState
   public struct State: Equatable {
     @Shared var box: Box
+    var name: String
     var focus: Field?
     public init(box: Shared<Box>) {
       self._box = box
+      self.name = box.wrappedValue.name
     }
     @Presents var destination: Destination.State?
     public enum Field: Hashable {
@@ -44,6 +47,7 @@ public struct BoxRowLogic {
     case deleteButtonTapped
     case destination(PresentationAction<Destination.Action>)
     case renameButtonTapped
+    case updateBoxName
   }
   
   @Dependency(\.uuid) var uuid
@@ -53,6 +57,13 @@ public struct BoxRowLogic {
     BindingReducer()
     Reduce { state, action in
       switch action {
+        
+      case .binding(\.focus):
+        if state.focus == nil && state.name != state.box.name {
+          return .send(.updateBoxName)
+        }
+        return .none
+        
       case .binding:
         return .none
         
@@ -74,6 +85,13 @@ public struct BoxRowLogic {
       case .renameButtonTapped:
         state.focus = .rename
         return .none
+        
+      case .updateBoxName:
+        let validName = state.name.isEmpty ? "New Box" : state.name
+        state.box.name = validName
+        @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
+        boxes[id: state.box.id] = state.box
+        return .none
       }
     }
     .ifLet(\.$destination, action: \.destination)
@@ -91,7 +109,7 @@ public struct BoxRowView: View {
       #if os(iOS)
       Text(store.box.name)
       #else
-      TextField("Name", text: $store.box.name)
+      TextField("Name", text: $store.name)
         .focused($focus, equals: .rename)
       #endif
     }
