@@ -71,9 +71,7 @@ extension MindBoxDatabase: DependencyKey {
     updateBox: { box, updateName in
       @Dependency(\.database.context) var context
       let mindBoxContext = try context()
-      let updatedBox = box
-      updatedBox.name = updateName
-      mindBoxContext.insert(updatedBox)
+      box.name = updateName
     },
     deleteBox: { box in
       @Dependency(\.database.context) var context

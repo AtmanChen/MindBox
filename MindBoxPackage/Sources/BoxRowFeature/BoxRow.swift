@@ -47,6 +47,7 @@ public struct BoxRowLogic {
     case deleteButtonTapped
     case destination(PresentationAction<Destination.Action>)
     case renameButtonTapped
+    case updateBoxName
   }
   
   @Dependency(\.mindBoxDB) var db
@@ -55,12 +56,20 @@ public struct BoxRowLogic {
     BindingReducer()
     Reduce { state, action in
       switch action {
+      case .binding(\.focus):
+        if state.focus == nil && state.name != state.box.name {
+          return .send(.updateBoxName)
+        }
+        return .none
+        
       case .binding:
         return .none
         
       case .createSubBoxButtonTapped:
         return .run { [box = state.box] send in
-          try? db.addBox("New Box", box)
+          try db.addBox("New Box", box)
+          @Shared(.inMemory("refreshBoxLocation")) var refreshBoxLocation: RefreshBoxLocation?
+          refreshBoxLocation = .box(box.uuid)
         }
         
       case .deleteButtonTapped:
@@ -72,7 +81,15 @@ public struct BoxRowLogic {
         return .none
         
       case .renameButtonTapped:
+        state.focus = .rename
         return .none
+        
+      case .updateBoxName:
+        // TODO: if input is empty, insert New Box as default name and refocus the field
+        let validUpdateName = state.name.isEmpty ? "New Box" : state.name
+        return .run { @MainActor [box = state.box] _ in
+          try db.updateBox(box, validUpdateName)
+        }
       }
     }
     .ifLet(\.$destination, action: \.destination)

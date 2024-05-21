@@ -20,6 +20,7 @@ public struct BoxListLogic {
   @ObservableState
   public struct State: Equatable {
     @Shared(.inMemory("selectedBox")) var selectedBox: Box?
+    @Shared(.inMemory("refreshBoxLocation")) var refreshBoxLocation: RefreshBoxLocation?
     var boxes: [Box] = []
     public init() {}
   }
@@ -67,29 +68,18 @@ public struct BoxListLogic {
 
 public struct BoxListView: View {
   @Bindable var store: StoreOf<BoxListLogic>
-  @Query(FetchDescriptor<Box>(predicate: #Predicate { $0.parentBox == nil }, sortBy: [SortDescriptor(\.creationDate, order: .reverse), SortDescriptor(\.name)]))
-  private var topBoxes: [Box] {
-    didSet {
-      store.send(.topBoxesUpdated(topBoxes), animation: .snappy)
-    }
-  }
   public init(store: StoreOf<BoxListLogic>) {
     self.store = store
   }
   public var body: some View {
     List(selection: $store.selectedBox) {
       ForEach(store.boxes) { box in
-        Section {
-          OutlineGroup(box, id: \.uuid, children: \.subBoxs) { subBox in
-            BoxRowView(
-              store: Store(
-                initialState: BoxRowLogic.State(box: subBox),
-                reducer: { BoxRowLogic() }
-              )
-            )
-            .tag(subBox)
-          }
-        }
+        RecursiveBoxRowView(
+          store: Store(
+            initialState: RecursiveBoxRow.State(box: box),
+            reducer: { RecursiveBoxRow() }
+          )
+        )
       }
     }
     .onAppear {

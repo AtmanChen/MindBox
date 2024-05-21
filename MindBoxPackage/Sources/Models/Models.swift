@@ -4,6 +4,11 @@ import SwiftData
 public typealias Box = MindBoxSchemaV1.Box
 public typealias Thought = MindBoxSchemaV1.Thought
 
+public enum RefreshBoxLocation: Hashable {
+  case root
+  case box(UUID)
+}
+
 public enum MindBoxSchemaV1: VersionedSchema {
   public static var versionIdentifier = Schema.Version(1, 0, 0)
   public static var models: [any PersistentModel.Type] {
