@@ -9,9 +9,7 @@ import Foundation
 import Models
 import ComposableArchitecture
 import SwiftUI
-import Database
 import BoxRowFeature
-import SwiftData
 
 @Reducer
 public struct BoxListLogic {
@@ -19,21 +17,19 @@ public struct BoxListLogic {
   
   @ObservableState
   public struct State: Equatable {
+    @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
     @Shared(.inMemory("selectedBox")) var selectedBox: Box?
     @Shared(.inMemory("refreshBoxLocation")) var refreshBoxLocation: RefreshBoxLocation?
-    var boxes: [Box] = []
-    public init() {}
   }
   
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case createNewBoxButtonTapped
-    case fetchTopBoxes
     case onAppear
-    case topBoxesUpdated([Box])
   }
   
-  @Dependency(\.mindBoxDB) var db
+  @Dependency(\.uuid) var uuid
+  @Dependency(\.date) var date
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -43,22 +39,11 @@ public struct BoxListLogic {
         return .none
         
       case .createNewBoxButtonTapped:
-        return .run { send in
-          try? db.addBox("New Box", nil)
-          await send(.onAppear, animation: .bouncy)
-        }
-        
-      case .fetchTopBoxes:
-        return .run { send in
-          let topBoxes = try db.fetchTopBoxes()
-          await send(.topBoxesUpdated(topBoxes))
-        }
+        let newBox = Box(id: uuid(), updateDate: date.now, parentBoxId: nil)
+        state.boxes.append(newBox)
+        return .none
         
       case .onAppear:
-        return .send(.fetchTopBoxes)
-        
-      case let .topBoxesUpdated(boxes):
-        state.boxes = boxes
         return .none
         
       }
@@ -73,10 +58,10 @@ public struct BoxListView: View {
   }
   public var body: some View {
     List(selection: $store.selectedBox) {
-      ForEach(store.boxes) { box in
+      ForEach(store.$boxes.elements.filter { $0.wrappedValue.parentBoxId == nil }) { $box in
         RecursiveBoxRowView(
           store: Store(
-            initialState: RecursiveBoxRow.State(box: box),
+            initialState: RecursiveBoxRow.State(box: $box),
             reducer: { RecursiveBoxRow() }
           )
         )
@@ -88,7 +73,7 @@ public struct BoxListView: View {
     .toolbar {
       ToolbarItem(placement: .primaryAction) {
         Button {
-          store.send(.createNewBoxButtonTapped)
+          store.send(.createNewBoxButtonTapped, animation: .bouncy)
         } label: {
           Label("Create new box", systemImage: "rectangle.stack.badge.plus")
         }

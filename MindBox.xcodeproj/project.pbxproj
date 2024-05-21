@@ -11,7 +11,6 @@
 		1D560A312BFB32380081FFDF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1D560A302BFB32380081FFDF /* Assets.xcassets */; };
 		1D560A352BFB32380081FFDF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1D560A342BFB32380081FFDF /* Preview Assets.xcassets */; };
 		1D560A3E2BFB4FB60081FFDF /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 1D560A3D2BFB4FB60081FFDF /* AppFeature */; };
-		1D560A402BFB504C0081FFDF /* Database in Frameworks */ = {isa = PBXBuildFile; productRef = 1D560A3F2BFB504C0081FFDF /* Database */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,7 +28,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1D560A3E2BFB4FB60081FFDF /* AppFeature in Frameworks */,
-				1D560A402BFB504C0081FFDF /* Database in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,7 +96,6 @@
 			name = MindBox;
 			packageProductDependencies = (
 				1D560A3D2BFB4FB60081FFDF /* AppFeature */,
-				1D560A3F2BFB504C0081FFDF /* Database */,
 			);
 			productName = MindBox;
 			productReference = 1D560A292BFB32370081FFDF /* MindBox.app */;
@@ -378,10 +375,6 @@
 		1D560A3D2BFB4FB60081FFDF /* AppFeature */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppFeature;
-		};
-		1D560A3F2BFB504C0081FFDF /* Database */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Database;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

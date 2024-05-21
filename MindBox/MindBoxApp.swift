@@ -13,13 +13,13 @@ import Database
 
 @main
 struct MindBoxApp: App {
-  @Dependency(\.database) var database
-  private var modelContext: ModelContext {
-    guard let modelContext = try? database.context() else {
-      fatalError("Could not find modelContext")
-    }
-    return modelContext
-  }
+//  @Dependency(\.database) var database
+//  private var modelContext: ModelContext {
+//    guard let modelContext = try? database.context() else {
+//      fatalError("Could not find modelContext")
+//    }
+//    return modelContext
+//  }
   var body: some Scene {
     WindowGroup {
       AppView(
@@ -32,6 +32,6 @@ struct MindBoxApp: App {
         )
       )
     }
-    .modelContext(modelContext)
+//    .modelContext(modelContext)
   }
 }
