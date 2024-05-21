@@ -17,6 +17,7 @@ public struct BoxListLogic {
   
   @ObservableState
   public struct State: Equatable {
+    public init() {}
     @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
     @Shared(.inMemory("selectedBox")) var selectedBox: Box?
     @Shared(.inMemory("refreshBoxLocation")) var refreshBoxLocation: RefreshBoxLocation?
