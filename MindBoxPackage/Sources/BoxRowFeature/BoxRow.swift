@@ -8,7 +8,6 @@
 import ComposableArchitecture
 import Models
 import SwiftUI
-import Database
 
 @Reducer
 public struct BoxRowLogic {
@@ -28,12 +27,10 @@ public struct BoxRowLogic {
   
   @ObservableState
   public struct State: Equatable {
-    var box: Box
-    var name: String
+    @Shared var box: Box
     var focus: Field?
-    public init(box: Box) {
-      self.box = box
-      self.name = box.name
+    public init(box: Shared<Box>) {
+      self._box = box
     }
     @Presents var destination: Destination.State?
     public enum Field: Hashable {
@@ -47,34 +44,28 @@ public struct BoxRowLogic {
     case deleteButtonTapped
     case destination(PresentationAction<Destination.Action>)
     case renameButtonTapped
-    case updateBoxName
   }
   
-  @Dependency(\.mindBoxDB) var db
+  @Dependency(\.uuid) var uuid
+  @Dependency(\.date) var date
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case .binding(\.focus):
-        if state.focus == nil && state.name != state.box.name {
-          return .send(.updateBoxName)
-        }
-        return .none
-        
       case .binding:
         return .none
         
       case .createSubBoxButtonTapped:
-        return .run { [box = state.box] send in
-          try db.addBox("New Box", box)
-          @Shared(.inMemory("refreshBoxLocation")) var refreshBoxLocation: RefreshBoxLocation?
-          refreshBoxLocation = .box(box.uuid)
-        }
+        let newBox = Box(id: uuid(), updateDate: date.now, parentBoxId: state.box.id)
+        @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
+        boxes.append(newBox)
+        return .none
         
       case .deleteButtonTapped:
         return .run { [box = state.box] _ in
-          try? db.deleteBox(box)
+          @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
+          boxes.remove(id: box.id)
         }
         
       case .destination:
@@ -83,13 +74,6 @@ public struct BoxRowLogic {
       case .renameButtonTapped:
         state.focus = .rename
         return .none
-        
-      case .updateBoxName:
-        // TODO: if input is empty, insert New Box as default name and refocus the field
-        let validUpdateName = state.name.isEmpty ? "New Box" : state.name
-        return .run { @MainActor [box = state.box] _ in
-          try db.updateBox(box, validUpdateName)
-        }
       }
     }
     .ifLet(\.$destination, action: \.destination)
@@ -107,7 +91,7 @@ public struct BoxRowView: View {
       #if os(iOS)
       Text(store.box.name)
       #else
-      TextField("Name", text: $store.name)
+      TextField("Name", text: $store.box.name)
         .focused($focus, equals: .rename)
       #endif
     }
@@ -116,13 +100,13 @@ public struct BoxRowView: View {
         store.send(.renameButtonTapped)
       }
       Button {
-        store.send(.createSubBoxButtonTapped)
+        store.send(.createSubBoxButtonTapped, animation: .bouncy)
       } label: {
         Text("Create New Box")
       }
       Divider()
       Button("Delete") {
-        store.send(.deleteButtonTapped)
+        store.send(.deleteButtonTapped, animation: .bouncy)
       }
     }
     .confirmationDialog($store.scope(state: \.destination?.deleteConfirmDialog, action: \.destination.deleteConfirmDialog))

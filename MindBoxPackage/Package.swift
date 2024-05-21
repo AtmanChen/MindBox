@@ -21,34 +21,35 @@ let package = Package(
     .library(
       name: "BoxRowFeature",
       targets: ["BoxRowFeature"]),
-    .library(
-      name: "Database",
-      targets: ["Database"]),
+//    .library(
+//      name: "Database",
+//      targets: ["Database"]),
     .library(
       name: "Models",
       targets: ["Models"]),
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.10.1"),
+    .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.10.0")
   ],
   targets: [
     // Targets are the basic building blocks of a package, defining a module or a test suite.
     // Targets can depend on other targets in this package and products from dependencies.
     .target(name: "AppFeature", dependencies: [
       "Models",
-      "Database",
+//      "Database",
       "BoxListFeature",
       .SCA,
     ]),
     .target(name: "BoxListFeature", dependencies: [
       "Models",
-      "Database",
+//      "Database",
       "BoxRowFeature",
       .SCA,
     ]),
     .target(name: "BoxRowFeature", dependencies: [
       "Models",
-      "Database",
+//      "Database",
       .SCA,
     ]),
     .target(
@@ -58,12 +59,19 @@ let package = Package(
         .SCA,
       ]),
     .target(
-      name: "Models"),
+      name: "Models",
+      dependencies: [
+        .SCA,
+        .TAGGED,
+      ]
+    ),
     .testTarget(
       name: "MindBoxPackageTests",
       dependencies: ["Models", "Database"]),
-  ])
+  ]
+)
 
 extension Target.Dependency {
   static let SCA: Target.Dependency = .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+  static let TAGGED: Target.Dependency = .product(name: "Tagged", package: "swift-tagged")
 }
