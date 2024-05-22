@@ -9,7 +9,6 @@ import AppFeature
 import ComposableArchitecture
 import SwiftData
 import SwiftUI
-import Database
 
 @main
 struct MindBoxApp: App {

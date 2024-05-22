@@ -89,3 +89,4 @@ fastlane/test_output
 
 iOSInjectionProject/
 MindBox.xcodeproj/project.xcworkspace/xcuserdata/lambert.xcuserdatad/UserInterfaceState.xcuserstate
+.DS_Store
