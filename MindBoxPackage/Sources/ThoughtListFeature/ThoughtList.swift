@@ -17,20 +17,25 @@ public struct ThoughtList {
   @ObservableState
   public struct State: Equatable {
     var box: Box
-    var thoughts: IdentifiedArrayOf<Thought> = []
-    @Shared(.appStorage("selectedThoughtId")) var selectedThoughtId: String?
-    public init(box: Box) {
+    @Shared var thoughts: IdentifiedArrayOf<Thought>
+    var selectedThoughtId: String?
+    public init(box: Box, thoughts: Shared<IdentifiedArrayOf<Thought>>) {
       self.box = box
-      @Shared(.fileStorage(.thoughts)) var thoughts: IdentifiedArrayOf<Thought> = []
-      self.thoughts = thoughts.filter { $0.boxId == box.id }
+      @Shared(.fileStorage(.thoughts)) var allThoughts: IdentifiedArrayOf<Thought> = []
+      self._thoughts = thoughts
     }
   }
   
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case createNewThoughtButtonTapped
+    case delegate(Delegate)
     case didSelectThought(String?)
     case onAppear
+    
+    public enum Delegate {
+      case didSelectThought(String?)
+    }
   }
   
   @Dependency(\.uuid) var uuid
@@ -49,20 +54,19 @@ public struct ThoughtList {
         state.thoughts.append(thought)
         return .none
         
-//      case let .didSelectThought(thoughtId):
-//        debugPrint("did -->> select thoughtId: \(thoughtId)")
-//        return .none
-        
       case .onAppear:
-        return .publisher {
-          state.$selectedThoughtId.publisher
-            .receive(on: DispatchQueue.main)
-            .map(Action.didSelectThought)
-        }
+//        return .publisher {
+//          state.$selectedThoughtId.publisher
+//            .receive(on: DispatchQueue.main)
+//            .map(Action.didSelectThought)
+//        }
+        return .none
+        
+      case .delegate:
+        return .none
         
       case let .didSelectThought(thoughtId):
-        debugPrint("did -->> receive thoughtId: \(thoughtId)")
-        return .none
+          return .send(.delegate(.didSelectThought(thoughtId)))
       }
     }
   }
@@ -74,15 +78,20 @@ public struct ThoughtListView: View {
     self.store = store
   }
   public var body: some View {
-    List(selection: $store.selectedThoughtId) {
-      ForEach(store.thoughts) { thought in
-        ThoughtRowView(
-          store: Store(
-            initialState: ThoughtRow.State(thought: thought),
-            reducer: { ThoughtRow() }
-          )
-        )
-        .tag(thought.id.uuidString)
+    Group {
+      if store.thoughts.isEmpty {
+        ContentUnavailableView("Light your mind up", systemImage: "cube.box")
+      } else {
+        List(selection: $store.selectedThoughtId.sending(\.didSelectThought)) {
+          ForEach(store.$thoughts.elements) { $thought in
+            ThoughtRowView(
+              store: Store(
+                initialState: ThoughtRow.State(thought: $thought),
+                reducer: { ThoughtRow() }
+              )
+            )
+          }
+        }
       }
     }
     .toolbar {

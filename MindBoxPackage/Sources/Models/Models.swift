@@ -1,6 +1,8 @@
 import Foundation
 import IdentifiedCollections
 import Tagged
+import Utils
+import Dependencies
 
 // public typealias Box = MindBoxSchemaV1.Box
 // public typealias Thought = MindBoxSchemaV1.Thought
@@ -21,8 +23,8 @@ public extension URL {
     print(url.path())
     return url
   }()
-
   static let thoughts = Self.documentsDirectory.appending(component: "thoughts.json")
+  static let keywords = Self.documentsDirectory.appending(component: "keywords.json")
 }
 
 public enum BoxThemeColor: Identifiable, Codable, CaseIterable, Hashable, CustomStringConvertible {
@@ -77,6 +79,16 @@ public enum BoxThemeColor: Identifiable, Codable, CaseIterable, Hashable, Custom
   }
 }
 
+public enum KeywordThemeColor: String, Identifiable, Codable, CaseIterable, Hashable {
+  public var id: Self { self }
+  
+  case royalPurple = "#5E1675"
+  case coralRed = "#EE4266"
+  case sunshineYellow = "#FFD23F"
+  case forestGreen = "#337357"
+  
+}
+
 public struct Box: Equatable, Identifiable, Codable, Hashable {
   public let id: UUID
   public var name: String = "New Box"
@@ -98,6 +110,16 @@ public struct Box: Equatable, Identifiable, Codable, Hashable {
     hasher.combine(parentBoxId)
     hasher.combine(color)
   }
+  
+  #if DEBUG
+  public static var examples: [Box] = [
+    Box(id: UUID(0), updateDate: Date(), parentBoxId: nil),
+    Box(id: UUID(1), updateDate: Date(), parentBoxId: UUID(0)),
+    Box(id: UUID(2), updateDate: Date(), parentBoxId: UUID(3)),
+    Box(id: UUID(3), updateDate: Date(), parentBoxId: UUID(0)),
+    Box(id: UUID(4), updateDate: Date(), parentBoxId: UUID(1)),
+  ]
+  #endif
 }
 
 public enum Status: Identifiable, CaseIterable, Codable, CustomStringConvertible, Hashable {
@@ -116,6 +138,13 @@ public enum Status: Identifiable, CaseIterable, Codable, CustomStringConvertible
   public static var allCases: [Status] {
     [.active, .archived, .custom("自定义")]
   }
+  public var systemImageName: String {
+    switch self {
+    case .active: return "checkmark.circle"
+    case .archived: return "archivebox"
+    case .custom: return "star"
+    }
+  }
 }
 
 public struct Thought: Equatable, Identifiable, Codable, Hashable {
@@ -125,14 +154,24 @@ public struct Thought: Equatable, Identifiable, Codable, Hashable {
   public var body: String
   public var updateDate: Date
   public var status: Status
+  public var formattedBody: Data?
+  public var keywords: [Keyword] = []
 
-  public init(id: UUID, boxId: UUID, title: String = "New Thought", body: String = "Handle your thought", updateDate: Date, status: Status = .active) {
+  public init(
+    id: UUID,
+    boxId: UUID,
+    title: String = "New Thought",
+    body: String = "Handle your thought",
+    updateDate: Date,
+    status: Status = .active
+  ) {
     self.id = id
     self.boxId = boxId
     self.title = title
     self.body = body
     self.updateDate = updateDate
     self.status = status
+    self.formattedBody = NSAttributedString(string: body).toData()
   }
 
   public func hash(into hasher: inout Hasher) {
@@ -142,7 +181,79 @@ public struct Thought: Equatable, Identifiable, Codable, Hashable {
     hasher.combine(body)
     hasher.combine(updateDate)
     hasher.combine(status)
+    hasher.combine(formattedBody)
+    hasher.combine(keywords)
   }
+  
+  public var formattedBodyText: NSAttributedString {
+    get {
+      formattedBody?.toAttributedString() ?? NSAttributedString(string: "")
+    }
+    set {
+      formattedBody = newValue.toData()
+      body = newValue.string.lowercased()
+    }
+  }
+  #if DEBUG
+  public static var examples: [Thought] = [
+    Thought(id: UUID(10), boxId: UUID(0), updateDate: Date()),
+    Thought(id: UUID(11), boxId: UUID(0), updateDate: Date()),
+    Thought(id: UUID(12), boxId: UUID(0), updateDate: Date()),
+    Thought(id: UUID(13), boxId: UUID(0), updateDate: Date()),
+    Thought(id: UUID(14), boxId: UUID(0), updateDate: Date()),
+    Thought(id: UUID(15), boxId: UUID(1), updateDate: Date()),
+    Thought(id: UUID(16), boxId: UUID(2), updateDate: Date()),
+    Thought(id: UUID(17), boxId: UUID(3), updateDate: Date()),
+    Thought(id: UUID(18), boxId: UUID(4), updateDate: Date()),
+  ]
+  #endif
+}
+
+public struct Keyword: Equatable, Identifiable, Codable, Hashable {
+  public let id: UUID
+  public let name: String
+  public let color: KeywordThemeColor
+  public var thoughtIds: [UUID]
+  
+  public init(
+    id: UUID,
+    name: String,
+    color: KeywordThemeColor,
+    thoughtIds: [UUID]
+  ) {
+    self.id = id
+    self.name = name
+    self.color = color
+    self.thoughtIds = thoughtIds
+  }
+  
+  #if DEBUG
+  public static var examples: [Keyword] = [
+    Keyword(
+      id: UUID(20),
+      name: "L.O.L",
+      color: .coralRed,
+      thoughtIds: [
+        UUID(10),
+        UUID(13),
+        UUID(16),
+        UUID(11),
+        UUID(18),
+      ]
+    ),
+    Keyword(
+      id: UUID(21),
+      name: "Dota2",
+      color: .royalPurple,
+      thoughtIds: [
+        UUID(12),
+        UUID(14),
+        UUID(15),
+        UUID(18),
+      ]
+    ),
+  ]
+  #endif
 }
 
 // public enum MindBoxSchemaV1: VersionedSchema {

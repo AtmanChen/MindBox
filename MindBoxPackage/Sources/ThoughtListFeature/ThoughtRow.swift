@@ -17,12 +17,12 @@ public struct ThoughtRow {
 
   @ObservableState
   public struct State: Equatable {
-    var thought: Thought
+    @Shared var thought: Thought
     var box: Box
-    public init(thought: Thought) {
-      self.thought = thought
+    public init(thought: Shared<Thought>) {
+      self._thought = thought
       @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
-      self.box = boxes[id: thought.boxId]!
+      self.box = boxes[id: thought.wrappedValue.boxId]!
     }
   }
 
@@ -41,7 +41,7 @@ public struct ThoughtRow {
 }
 
 public struct ThoughtRowView: View {
-  @Bindable var store: StoreOf<ThoughtRow>
+  let store: StoreOf<ThoughtRow>
   public init(store: StoreOf<ThoughtRow>) {
     self.store = store
   }
@@ -53,12 +53,15 @@ public struct ThoughtRowView: View {
       HStack {
         Text(store.thought.updateDate, formatter: itemFormatter)
           .font(.caption)
-        Text(store.thought.status.description)
-          .font(.caption)
-          .foregroundColor(.white)
-          .padding(.horizontal, 5)
-          .padding(.vertical, 2)
-          .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(Color(hex: store.box.color.rawValue) ?? Color.gray))
+        HStack(spacing: 4) {
+          Image(systemName: store.thought.status.systemImageName)
+          Text(store.thought.status.description)
+        }
+        .font(.caption)
+        .foregroundColor(.white)
+        .padding(.horizontal, 5)
+        .padding(.vertical, 2)
+        .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(Color(hex: store.box.color.rawValue) ?? Color.gray))
       }
 
       if store.thought.body.count > 0 {

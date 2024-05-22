@@ -17,9 +17,11 @@ public struct BoxListLogic {
   
   @ObservableState
   public struct State: Equatable {
-    public init() {}
-    @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
-    @Shared(.fileStorage(.thoughts)) var thoughts: IdentifiedArrayOf<Thought> = []
+    public init() {
+      @Shared(.fileStorage(.boxes)) var allBoxes: IdentifiedArrayOf<Box> = []
+      self.boxes = allBoxes.filter { $0.parentBoxId == nil }
+    }
+    var boxes: IdentifiedArrayOf<Box>
     @Shared(.appStorage("selectedBoxId")) var selectedBoxId: String?
     @Shared(.inMemory("refreshBoxLocation")) var refreshBoxLocation: RefreshBoxLocation?
   }
@@ -42,6 +44,8 @@ public struct BoxListLogic {
         
       case .createNewBoxButtonTapped:
         let newBox = Box(id: uuid(), updateDate: date.now, parentBoxId: nil)
+        @Shared(.fileStorage(.boxes)) var allBoxes: IdentifiedArrayOf<Box> = []
+        allBoxes[id: newBox.id] = newBox
         state.boxes.append(newBox)
         return .none
         
@@ -59,14 +63,20 @@ public struct BoxListView: View {
     self.store = store
   }
   public var body: some View {
-    List(selection: $store.selectedBoxId) {
-      ForEach(store.$boxes.elements.filter { $0.wrappedValue.parentBoxId == nil }) { $box in
-        RecursiveBoxRowView(
-          store: Store(
-            initialState: RecursiveBoxRow.State(box: $box),
-            reducer: { RecursiveBoxRow() }
-          )
-        )
+    Group {
+      if store.boxes.isEmpty {
+        ContentUnavailableView("Create A New Mind Box", systemImage: "lightbulb.2.fill")
+      } else {
+        List(selection: $store.selectedBoxId) {
+          ForEach(store.boxes) { box in
+            RecursiveBoxRowView(
+              store: Store(
+                initialState: RecursiveBoxRow.State(box: Shared(box)),
+                reducer: { RecursiveBoxRow() }
+              )
+            )
+          }
+        }
       }
     }
     .onAppear {
