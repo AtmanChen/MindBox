@@ -17,20 +17,25 @@ public struct ThoughtKeywordPicker {
   @ObservableState
   public struct State: Equatable {
     @Shared var thought: Thought
-    var keywords: IdentifiedArrayOf<Keyword>
-    var selectedKeywords: IdentifiedArrayOf<Keyword> = []
+		var keywords: IdentifiedArrayOf<Keyword> = []
+    var selectedKeywords: Set<Keyword> = []
     var searchTerm: String = ""
+		var newKeyword: NewKeyword.State?
     public init(thought: Shared<Thought>) {
       self._thought = thought
-      @Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
-      self.keywords = allKeywords
+			@Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
+			self.keywords = allKeywords
     }
   }
   
   public enum Action: BindableAction {
+		case addkeywordsToThoughtButtonTapped
     case binding(BindingAction<State>)
     case clearSearchTerm
-    case addkeywordsToThoughtButtonTapped
+		case keywordSelectionUpdate(Set<Keyword>)
+		case newKeyword(NewKeyword.Action)
+		case newKeywordUpdate
+		case searchTermUpdate(String)
   }
   
   public var body: some ReducerOf<Self> {
@@ -57,9 +62,41 @@ public struct ThoughtKeywordPicker {
         
       case .clearSearchTerm:
         state.searchTerm = ""
-        return .none
+				return .send(.newKeywordUpdate)
+				
+			case let .keywordSelectionUpdate(updateSelectedKeywords):
+				state.selectedKeywords = updateSelectedKeywords
+				return .send(.newKeywordUpdate)
+				
+			case .newKeyword(.delegate(.keywordAdded)):
+				return .send(.searchTermUpdate(""))
+				
+			case .newKeyword:
+				return .none
+				
+			case .newKeywordUpdate:
+				if state.selectedKeywords.isEmpty && state.keywords.isEmpty {
+					state.newKeyword = NewKeyword.State(searchTerm: state.searchTerm)
+				} else {
+					state.newKeyword = nil
+				}
+				debugPrint("NewKeyword: \(state.newKeyword) \(state.searchTerm)")
+				return .none
+				
+			case let .searchTermUpdate(updateSearchTerm):
+				state.searchTerm = updateSearchTerm
+				if updateSearchTerm.isEmpty {
+					@Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
+					state.keywords = allKeywords
+				} else {
+					state.keywords = state.keywords.filter { $0.name.lowercased().contains(updateSearchTerm.lowercased()) }
+				}
+				return .send(.newKeywordUpdate)
       }
     }
+		.ifLet(\.newKeyword, action: \.newKeyword) {
+			NewKeyword()
+		}
   }
 }
 
@@ -76,7 +113,7 @@ public struct ThoughtKeywordPickerView: View {
           .bold()
       }
       HStack {
-        TextField("Search", text: $store.searchTerm)
+				TextField("Search", text: $store.searchTerm.sending(\.searchTermUpdate))
           .textFieldStyle(.roundedBorder)
         if !store.searchTerm.isEmpty {
           Button {
@@ -87,7 +124,7 @@ public struct ThoughtKeywordPickerView: View {
           .foregroundStyle(.pink)
         }
       }
-      List(selection: $store.selectedKeywords) {
+			List(selection: $store.selectedKeywords.sending(\.keywordSelectionUpdate)) {
         ForEach(store.keywords) { keyword in
           HStack {
             Image(systemName: "tag.fill")
@@ -108,12 +145,15 @@ public struct ThoughtKeywordPickerView: View {
           Text("Add keywords to thought")
         }
       } else if store.keywords.isEmpty {
-        NewKeywordView(
-          store: Store(
-            initialState: NewKeyword.State(searchTerm: store.searchTerm),
-            reducer: { NewKeyword() }
-          )
-        )
+//        NewKeywordView(
+//          store: Store(
+//            initialState: NewKeyword.State(searchTerm: store.searchTerm),
+//            reducer: { NewKeyword() }
+//          )
+//        )
+				if let newKeywordStore = store.scope(state: \.newKeyword, action: \.newKeyword) {
+					NewKeywordView(store: newKeywordStore)
+				}
       }
       
     }

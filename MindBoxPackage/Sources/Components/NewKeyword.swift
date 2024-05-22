@@ -27,6 +27,11 @@ public struct NewKeyword {
     case binding(BindingAction<State>)
     case colorDidTapped(KeywordThemeColor)
     case createNewKeywordButtonTapped
+		case delegate(Delegate)
+		
+		public enum Delegate {
+			case keywordAdded
+		}
   }
   
   public var body: some ReducerOf<Self> {
@@ -48,7 +53,10 @@ public struct NewKeyword {
         @Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
         let keyword = Keyword(id: uuid(), name: state.searchTerm, color: state.selectedColor, thoughtIds: [])
         allKeywords[id: keyword.id] = keyword
-        return .none
+				return .send(.delegate(.keywordAdded), animation: .bouncy)
+				
+			case .delegate:
+				return .none
       }
     }
   }
