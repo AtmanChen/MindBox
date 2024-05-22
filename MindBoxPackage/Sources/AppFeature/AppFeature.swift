@@ -23,17 +23,22 @@ public struct AppLogic {
     var thoughtList: ThoughtList.State?
     var thoughtDetail: ThoughtDetail.State?
     var columnVisibility: NavigationSplitViewVisibility = .all
+    @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
+    @Shared(.fileStorage(.thoughts)) var allThoughts: IdentifiedArrayOf<Thought> = []
     @Shared(.appStorage("selectedBoxId")) var selectedBoxId: String?
-    @Shared(.appStorage("selectedThoughtId")) var selectedThoughtId: String?
-    public init() {}
+    @Shared var thoughts: IdentifiedArrayOf<Thought>
+    var selectedThoughtId: String?
+    public init() {
+      self._thoughts = Shared([])
+    }
   }
   
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case boxList(BoxListLogic.Action)
     case onAppear
-    case thoughtList(ThoughtList.Action)
     case thoughtDetail(ThoughtDetail.Action)
+    case thoughtList(ThoughtList.Action)
     case updateMindBoxSelection(MindBoxSelectionUpdate)
   }
   
@@ -52,47 +57,69 @@ public struct AppLogic {
         
       case .onAppear:
         return .publisher {
-          let boxSelection = state.$selectedBoxId.publisher
+          state.$selectedBoxId.publisher
             .map(MindBoxSelectionUpdate.box(boxIdString:))
-          
-          let thoughtSelection = state.$selectedThoughtId.publisher
-            .map(MindBoxSelectionUpdate.thought(thoughtIdString:))
-          
-          return Publishers.Merge(boxSelection, thoughtSelection)
             .receive(on: DispatchQueue.main)
             .map(Action.updateMindBoxSelection)
         }
         
+//      case .subscribeBoxSelection:
+//        return .publisher {
+//          state.$selectedBoxId.publisher
+//            .map(MindBoxSelectionUpdate.box(boxIdString:))
+//            .receive(on: DispatchQueue.main)
+//            .map(Action.updateMindBoxSelection)
+//        }
+        
+        
+//      case .subscribeThoughtSelection:
+//        return .none
+//        return .publisher {
+//          state.$selectedThoughtId.publisher
+//            .map(MindBoxSelectionUpdate.thought(thoughtIdString:))
+//            .receive(on: DispatchQueue.main)
+//            .map(Action.updateMindBoxSelection)
+//        }
+        
+        
       case .thoughtDetail:
+        return .none
+        
+      case let .thoughtList(.delegate(.didSelectThought(thoughtId))):
+        state.selectedThoughtId = thoughtId
+        if let thoughtId,
+           let thoughtUUID = UUID(uuidString: thoughtId),
+           let sharedThought = state.$thoughts[id: thoughtUUID] {
+          state.thoughtDetail = ThoughtDetail.State(thought: sharedThought)
+        } else {
+          state.thoughtDetail = nil
+        }
         return .none
         
       case .thoughtList:
         return .none
         
       case let .updateMindBoxSelection(selection):
-        debugPrint("did -->> receive thoughtId: \(selection)")
         switch selection {
         case let .box(boxIdString):
-          @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
           if let boxIdString,
              let boxId = UUID(uuidString: boxIdString),
-             let box = boxes[id: boxId] {
-            state.thoughtList = ThoughtList.State(box: box)
+             let box = state.boxes[id: boxId] {
+            state.thoughts = state.allThoughts.filter { $0.boxId == box.id }
+            state.thoughtList = ThoughtList.State(box: box, thoughts: state.$thoughts)
           } else {
             state.thoughtList = nil
           }
-          
-        case let .thought(thoughtIdString):
-          @Shared(.fileStorage(.thoughts)) var thoughts: IdentifiedArrayOf<Thought> = []
-          if let thoughtIdString,
-             let thoughtId = UUID(uuidString: thoughtIdString),
-             let thought = thoughts[id: thoughtId] {
-            state.thoughtDetail = ThoughtDetail.State(thought: thought)
-          } else {
-            state.thoughtDetail = nil
-          }
+        default: break
+//        case let .thought(thoughtIdString):
+//          if let thoughtIdString,
+//             let thoughtId = UUID(uuidString: thoughtIdString),
+//             let thought = state.thoughts[id: thoughtId] {
+//            state.thoughtDetail = ThoughtDetail.State(thought: thought)
+//          } else {
+//            state.thoughtDetail = nil
+//          }
         }
-        
         return .none
       }
     }

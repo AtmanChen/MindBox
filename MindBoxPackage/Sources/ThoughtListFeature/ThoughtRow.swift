@@ -17,12 +17,12 @@ public struct ThoughtRow {
 
   @ObservableState
   public struct State: Equatable {
-    var thought: Thought
+    @Shared var thought: Thought
     var box: Box
-    public init(thought: Thought) {
-      self.thought = thought
+    public init(thought: Shared<Thought>) {
+      self._thought = thought
       @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
-      self.box = boxes[id: thought.boxId]!
+      self.box = boxes[id: thought.wrappedValue.boxId]!
     }
   }
 
@@ -41,7 +41,7 @@ public struct ThoughtRow {
 }
 
 public struct ThoughtRowView: View {
-  @Bindable var store: StoreOf<ThoughtRow>
+  let store: StoreOf<ThoughtRow>
   public init(store: StoreOf<ThoughtRow>) {
     self.store = store
   }
