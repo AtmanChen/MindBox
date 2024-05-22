@@ -78,14 +78,20 @@ public struct ThoughtListView: View {
     self.store = store
   }
   public var body: some View {
-    List(selection: $store.selectedThoughtId.sending(\.didSelectThought)) {
-      ForEach(store.$thoughts.elements) { $thought in
-        ThoughtRowView(
-          store: Store(
-            initialState: ThoughtRow.State(thought: $thought),
-            reducer: { ThoughtRow() }
-          )
-        )
+    Group {
+      if store.thoughts.isEmpty {
+        ContentUnavailableView("Light your mind up", systemImage: "cube.box")
+      } else {
+        List(selection: $store.selectedThoughtId.sending(\.didSelectThought)) {
+          ForEach(store.$thoughts.elements) { $thought in
+            ThoughtRowView(
+              store: Store(
+                initialState: ThoughtRow.State(thought: $thought),
+                reducer: { ThoughtRow() }
+              )
+            )
+          }
+        }
       }
     }
     .toolbar {

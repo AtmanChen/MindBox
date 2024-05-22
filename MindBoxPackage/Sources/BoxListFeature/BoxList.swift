@@ -63,14 +63,20 @@ public struct BoxListView: View {
     self.store = store
   }
   public var body: some View {
-    List(selection: $store.selectedBoxId) {
-      ForEach(store.boxes) { box in
-        RecursiveBoxRowView(
-          store: Store(
-            initialState: RecursiveBoxRow.State(box: Shared(box)),
-            reducer: { RecursiveBoxRow() }
-          )
-        )
+    Group {
+      if store.boxes.isEmpty {
+        ContentUnavailableView("Create A New Mind Box", systemImage: "lightbulb.2.fill")
+      } else {
+        List(selection: $store.selectedBoxId) {
+          ForEach(store.boxes) { box in
+            RecursiveBoxRowView(
+              store: Store(
+                initialState: RecursiveBoxRow.State(box: Shared(box)),
+                reducer: { RecursiveBoxRow() }
+              )
+            )
+          }
+        }
       }
     }
     .onAppear {
