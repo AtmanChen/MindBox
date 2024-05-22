@@ -25,6 +25,7 @@ public struct AppLogic {
     var columnVisibility: NavigationSplitViewVisibility = .all
     @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
     @Shared(.fileStorage(.thoughts)) var allThoughts: IdentifiedArrayOf<Thought> = []
+    @Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
     @Shared(.appStorage("selectedBoxId")) var selectedBoxId: String?
     @Shared var thoughts: IdentifiedArrayOf<Thought>
     var selectedThoughtId: String?

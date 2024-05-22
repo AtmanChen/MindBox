@@ -80,11 +80,13 @@ let package = Package(
       dependencies: [
         .SCA,
         .TAGGED,
+        "Utils",
       ]
     ),
     .target(
       name: "ThoughtListFeature",
       dependencies: [
+        "Components",
         "Models",
         "Utils",
         .SCA,

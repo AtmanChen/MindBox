@@ -53,12 +53,15 @@ public struct ThoughtRowView: View {
       HStack {
         Text(store.thought.updateDate, formatter: itemFormatter)
           .font(.caption)
-        Text(store.thought.status.description)
-          .font(.caption)
-          .foregroundColor(.white)
-          .padding(.horizontal, 5)
-          .padding(.vertical, 2)
-          .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(Color(hex: store.box.color.rawValue) ?? Color.gray))
+        HStack(spacing: 4) {
+          Image(systemName: store.thought.status.systemImageName)
+          Text(store.thought.status.description)
+        }
+        .font(.caption)
+        .foregroundColor(.white)
+        .padding(.horizontal, 5)
+        .padding(.vertical, 2)
+        .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(Color(hex: store.box.color.rawValue) ?? Color.gray))
       }
 
       if store.thought.body.count > 0 {

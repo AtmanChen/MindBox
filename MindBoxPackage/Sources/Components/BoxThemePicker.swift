@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  BoxThemePicker.swift
 //
 //
 //  Created by lambert on 2024/5/21.
@@ -9,21 +9,6 @@ import ComposableArchitecture
 import Models
 import SwiftUI
 import Utils
-
-
-/*Button {
- store.send(.themeButtonTapped)
-} label: {
- Circle()
-   .fill(Color(hex: store.box.color.rawValue) ?? .primary)
-}
-.buttonStyle(.plain)
-.frame(width: 16, height: 16)
-.shadow(color: .primary, radius: 4)
-.popover(item: $store.scope(state: \.destination?.themePicker, action: \.destination.themePicker)) { themePickerStore in
- BoxThemePickerView(store: themePickerStore)
-}*/
-
 
 @Reducer
 public struct BoxThemePicker {
