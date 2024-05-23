@@ -50,6 +50,7 @@ let package = Package(
       "BoxListFeature",
       "Utils",
       "ThoughtListFeature",
+      "KeywordListFeature",
       .SCA,
     ]),
     .target(name: "BoxListFeature", dependencies: [

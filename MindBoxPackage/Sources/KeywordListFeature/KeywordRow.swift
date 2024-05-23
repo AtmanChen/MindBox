@@ -1,16 +1,16 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by lambert on 2024/5/23.
 //
 
+import Components
+import ComposableArchitecture
 import Foundation
 import Models
-import Utils
-import Components
 import SwiftUI
-import ComposableArchitecture
+import Utils
 
 @Reducer
 public struct KeywordRow {
@@ -19,22 +19,28 @@ public struct KeywordRow {
   @ObservableState
   public struct State: Equatable {
     public var keyword: Keyword
-    public var expanded: Bool
-    public init(keyword: Keyword, expanded: Bool = true) {
+    public var thoughts: IdentifiedArrayOf<Thought>
+    public init(keyword: Keyword) {
       self.keyword = keyword
-      self.expanded = expanded
+      @Shared(.fileStorage(.thoughts)) var allThoughts: IdentifiedArrayOf<Thought> = []
+      self.thoughts = allThoughts.filter { keyword.thoughtIds.contains($0.id) }
     }
   }
   
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case deleteKeywordMenuTapped
+    case onAppear
     case openAllThoughtsForKeyword
+    case toggleKeywordExpanded
+    case updateKeywordThoughts
   }
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
-    Reduce { state, action in
+    Reduce {
+      state,
+        action in
       switch action {
       case .binding:
         return .none
@@ -42,7 +48,29 @@ public struct KeywordRow {
       case .deleteKeywordMenuTapped:
         return .none
         
+      case .onAppear:
+        return .publisher { [keyword = state.keyword] in
+          @Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
+          return $allKeywords.publisher
+            .map { $0.filter { $0.id == keyword.id } }
+            .print()
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .map { _ in Action.updateKeywordThoughts }
+        }
+        
       case .openAllThoughtsForKeyword:
+        return .none
+        
+      case .toggleKeywordExpanded:
+        state.keyword.expanded.toggle()
+        @Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
+        allKeywords[id: state.keyword.id] = state.keyword
+        return .none
+        
+      case .updateKeywordThoughts:
+        @Shared(.fileStorage(.thoughts)) var allThoughts: IdentifiedArrayOf<Thought> = []
+        state.thoughts = allThoughts.filter { state.keyword.thoughtIds.contains($0.id) }
         return .none
       }
     }
@@ -54,31 +82,53 @@ public struct KeywordRowView: View {
   public init(store: StoreOf<KeywordRow>) {
     self.store = store
   }
+
   public var body: some View {
-    HStack(spacing: 4) {
-      Image(systemName: "tag.fill")
-      Text(store.keyword.name)
-    }
-    .foregroundStyle(Color(.controlTextColor))
-    .padding(6)
-    .background {
-      RoundedRectangle(cornerRadius: 5)
-        .fill(Color(hex: store.keyword.color.rawValue)!.gradient)
-    }
-    .contextMenu {
-      Button {
-        store.send(.deleteKeywordMenuTapped)
-      } label: {
-        Label("Destroy this keyword", systemImage: "trash")
+    HStack {
+      HStack(spacing: 4) {
+        Image(systemName: "tag.fill")
+        Text(store.keyword.name)
       }
+      .foregroundStyle(Color(.controlTextColor))
+      .padding(6)
+      .background {
+        RoundedRectangle(cornerRadius: 5)
+          .fill(Color(hex: store.keyword.color.rawValue)!.gradient)
+      }
+      .contextMenu {
+        Button {
+          store.send(.deleteKeywordMenuTapped)
+        } label: {
+          Label("Destroy this keyword", systemImage: "trash")
+        }
+        
+        Button {
+          store.send(.openAllThoughtsForKeyword)
+        } label: {
+          Label("Show all thoughts for keyword", systemImage: "doc.on.doc.fill")
+        }
+      }
+      .labelStyle(.titleAndIcon)
+      Spacer()
       
-      Button {
-        store.send(.openAllThoughtsForKeyword)
-      } label: {
-        Label("Show all thoughts for keyword", systemImage: "doc.on.doc.fill")
+      if !store.keyword.thoughtIds.isEmpty {
+        Button {
+          store.send(.toggleKeywordExpanded, animation: .bouncy)
+        } label: {
+          Image(systemName: "chevron.right")
+            .rotationEffect(.degrees(store.keyword.expanded ? 90 : 0))
+        }
+        .buttonStyle(.plain)
       }
     }
-    .labelStyle(.titleAndIcon)
+    .tag(store.keyword.id.uuidString)
+    
+    if store.keyword.expanded {
+      ForEach(store.thoughts) { thought in
+        KeywordThoughtRowView(thought: thought)
+          .padding(.leading, 4)
+      }
+    }
   }
 }
 

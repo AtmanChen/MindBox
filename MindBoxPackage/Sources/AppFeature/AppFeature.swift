@@ -11,6 +11,7 @@ import Models
 import BoxListFeature
 import SwiftUI
 import ThoughtListFeature
+import KeywordListFeature
 import Combine
 
 @Reducer
@@ -20,6 +21,7 @@ public struct AppLogic {
   @ObservableState
   public struct State: Equatable {
     var boxList = BoxListLogic.State()
+    var keywordList = KeywordList.State()
     var thoughtList: ThoughtList.State?
     var thoughtDetail: ThoughtDetail.State?
     var columnVisibility: NavigationSplitViewVisibility = .all
@@ -27,6 +29,7 @@ public struct AppLogic {
     @Shared(.fileStorage(.thoughts)) var allThoughts: IdentifiedArrayOf<Thought> = []
     @Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
     @Shared(.appStorage("selectedBoxId")) var selectedBoxId: String?
+    @Shared(.appStorage("selectedKeywordId")) var selectedKeywordId: String?
     @Shared var thoughts: IdentifiedArrayOf<Thought>
     var selectedThoughtId: String?
     public init() {
@@ -38,6 +41,7 @@ public struct AppLogic {
     case binding(BindingAction<State>)
     case boxList(BoxListLogic.Action)
     case onAppear
+    case keywordList(KeywordList.Action)
     case thoughtDetail(ThoughtDetail.Action)
     case thoughtList(ThoughtList.Action)
     case updateMindBoxSelection(MindBoxSelectionUpdate)
@@ -47,6 +51,9 @@ public struct AppLogic {
     BindingReducer()
     Scope(state: \.boxList, action: \.boxList) {
       BoxListLogic()
+    }
+    Scope(state: \.keywordList, action: \.keywordList) {
+      KeywordList()
     }
     Reduce { state, action in
       switch action {
@@ -81,7 +88,8 @@ public struct AppLogic {
 //            .receive(on: DispatchQueue.main)
 //            .map(Action.updateMindBoxSelection)
 //        }
-        
+      case .keywordList:
+        return .none
         
       case .thoughtDetail:
         return .none
@@ -145,8 +153,28 @@ public struct AppView: View {
   public var body: some View {
     NavigationSplitView(columnVisibility: $store.columnVisibility) {
       VStack {
-        BoxListView(store: store.scope(state: \.boxList, action: \.boxList))
-        
+        Section {
+          BoxListView(store: store.scope(state: \.boxList, action: \.boxList))
+        } header: {
+          HStack {
+            Text("Boxes")
+              .font(.title)
+              .bold()
+            Spacer()
+          }
+          .padding()
+        }
+        Section {
+          KeywordListView(store: store.scope(state: \.keywordList, action: \.keywordList))
+        } header: {
+          HStack {
+            Text("Keywords")
+              .font(.title)
+              .bold()
+            Spacer()
+          }
+          .padding()
+        }
       }
     } content: {
       if let thoughtListStore = store.scope(state: \.thoughtList, action: \.thoughtList) {

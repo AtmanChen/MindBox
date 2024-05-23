@@ -110,6 +110,7 @@ public struct Box: Equatable, Identifiable, Codable, Hashable {
     hasher.combine(updateDate)
     hasher.combine(parentBoxId)
     hasher.combine(color)
+    hasher.combine(expanded)
   }
   
   #if DEBUG
@@ -215,6 +216,7 @@ public struct Keyword: Equatable, Identifiable, Codable, Hashable {
   public let name: String
   public let color: KeywordThemeColor
   public var thoughtIds: [UUID]
+  public var expanded: Bool = false
   
   public init(
     id: UUID,
