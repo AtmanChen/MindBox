@@ -28,9 +28,9 @@ public struct AppLogic {
     @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
     @Shared(.fileStorage(.thoughts)) var allThoughts: IdentifiedArrayOf<Thought> = []
     @Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
-    @Shared(.appStorage("selectedBoxId")) var selectedBoxId: String?
     @Shared(.appStorage("selectedKeywordId")) var selectedKeywordId: String?
     @Shared var thoughts: IdentifiedArrayOf<Thought>
+    var selectedBoxId: String?
     var selectedThoughtId: String?
     public init() {
       self._thoughts = Shared([])
@@ -60,16 +60,27 @@ public struct AppLogic {
       case .binding:
         return .none
         
+      case let .boxList(.delegate(.didSelectBox(boxIdString))):
+        state.selectedBoxId = boxIdString
+        if let boxIdString,
+           let boxId = UUID(uuidString: boxIdString),
+           let box = state.boxes[id: boxId] {
+          state.thoughts = state.allThoughts.filter { $0.boxId == box.id }
+          if state.thoughtList?.box.id != boxId {
+            state.selectedThoughtId = nil
+            state.thoughtDetail = nil
+          }
+          state.thoughtList = ThoughtList.State(box: box, thoughts: state.$thoughts)
+        } else {
+          state.thoughtList = nil
+        }
+        return .none
+        
       case .boxList:
         return .none
         
       case .onAppear:
-        return .publisher {
-          state.$selectedBoxId.publisher
-            .map(MindBoxSelectionUpdate.box(boxIdString:))
-            .receive(on: DispatchQueue.main)
-            .map(Action.updateMindBoxSelection)
-        }
+        return .none
         
 //      case .subscribeBoxSelection:
 //        return .publisher {

@@ -22,15 +22,20 @@ public struct BoxListLogic {
       self.boxes = allBoxes.filter { $0.parentBoxId == nil }
     }
     var boxes: IdentifiedArrayOf<Box>
-    @Shared(.appStorage("selectedBoxId")) var selectedBoxId: String?
-    @Shared(.inMemory("refreshBoxLocation")) var refreshBoxLocation: RefreshBoxLocation?
+    var selectedBoxId: String?
   }
   
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case createNewBoxButtonTapped
+    case delegate(Delegate)
+    case didSelectBox(String?)
     case onAppear
     case updateTopBoxes(IdentifiedArrayOf<Box>)
+    
+    public enum Delegate {
+      case didSelectBox(String?)
+    }
   }
   
   @Dependency(\.uuid) var uuid
@@ -48,6 +53,12 @@ public struct BoxListLogic {
         @Shared(.fileStorage(.boxes)) var allBoxes: IdentifiedArrayOf<Box> = []
         allBoxes[id: newBox.id] = newBox
         state.boxes.append(newBox)
+        return .none
+        
+      case let .didSelectBox(boxIdString):
+        return .send(.delegate(.didSelectBox(boxIdString)))
+        
+      case .delegate:
         return .none
         
       case .onAppear:
@@ -77,7 +88,7 @@ public struct BoxListView: View {
       if store.boxes.isEmpty {
         ContentUnavailableView("Create A New Mind Box", systemImage: "lightbulb.2.fill")
       } else {
-        List(selection: $store.selectedBoxId) {
+        List(selection: $store.selectedBoxId.sending(\.didSelectBox)) {
           ForEach(store.boxes) { box in
             RecursiveBoxRowView(
               store: Store(
