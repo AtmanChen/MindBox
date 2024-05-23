@@ -30,6 +30,7 @@ let package = Package(
     .library(
       name: "Models",
       targets: ["Models"]),
+    .library(name: "KeywordListFeature", targets: ["KeywordListFeature"]),
     .library(
       name: "ThoughtListFeature",
       targets: ["ThoughtListFeature"]),
@@ -81,6 +82,15 @@ let package = Package(
         .SCA,
         .TAGGED,
         "Utils",
+      ]
+    ),
+    .target(
+      name: "KeywordListFeature",
+      dependencies: [
+        "Models",
+        .SCA,
+        "Utils",
+        "Components",
       ]
     ),
     .target(

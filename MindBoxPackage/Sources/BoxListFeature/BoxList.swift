@@ -30,6 +30,7 @@ public struct BoxListLogic {
     case binding(BindingAction<State>)
     case createNewBoxButtonTapped
     case onAppear
+    case updateTopBoxes(IdentifiedArrayOf<Box>)
   }
   
   @Dependency(\.uuid) var uuid
@@ -50,8 +51,17 @@ public struct BoxListLogic {
         return .none
         
       case .onAppear:
-        return .none
+        return .publisher {
+          @Shared(.fileStorage(.boxes)) var allBoxes: IdentifiedArrayOf<Box> = []
+          return $allBoxes.publisher
+            .map { $0.filter { $0.parentBoxId == nil } }
+            .receive(on: DispatchQueue.main)
+            .map(Action.updateTopBoxes)
+        }
         
+      case let .updateTopBoxes(boxes):
+        state.boxes = boxes
+        return .none
       }
     }
   }

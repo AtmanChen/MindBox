@@ -18,9 +18,9 @@ public struct ThoughtKeywordsCollection {
     case deleteConfirmDialog(ConfirmationDialogState<Alert>)
     
     @CasePathable
-    public enum Alert {
+    public enum Alert: Hashable {
       case confirmCancel
-      case confirmDelete
+      case confirmDelete(Keyword, destroy: Bool)
     }
   }
 
@@ -40,7 +40,7 @@ public struct ThoughtKeywordsCollection {
   
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
-    case deleteKeywordMenuTapped(Keyword)
+    case deleteKeywordMenuTapped(Keyword, destroy: Bool)
     case destination(PresentationAction<Destination.Action>)
     case openAllThoughtsForKeyword(Keyword)
   }
@@ -52,18 +52,29 @@ public struct ThoughtKeywordsCollection {
       case .binding:
         return .none
         
-      case let .deleteKeywordMenuTapped(keyword):
-        state.destination = .deleteConfirmDialog(.deleteKeyword(keyword))
+      case let .deleteKeywordMenuTapped(keyword, destroy):
+        state.destination = .deleteConfirmDialog(.deleteKeyword(keyword, destroy: destroy))
         return .none
         
       case .destination(.presented(.deleteConfirmDialog(.confirmCancel))):
         state.destination = nil
         return .none
         
-      case .destination(.presented(.deleteConfirmDialog(.confirmDelete))):
+      case let .destination(.presented(.deleteConfirmDialog(.confirmDelete(keyword, destroy)))):
         state.destination = nil
-        return .run { _ in
+        state.keywords.remove(id: keyword.id)
+        state.thought.keywords.removeAll(where: { $0.id == keyword.id })
+        @Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
+        @Shared(.fileStorage(.thoughts)) var thoughts: IdentifiedArrayOf<Thought> = []
+        thoughts[id: state.thought.id] = state.thought
+        if destroy {
+          allKeywords.remove(id: keyword.id)
+        } else {
+          var updateKeyword = keyword
+          updateKeyword.thoughtIds.removeAll(where: { $0 == state.thought.id })
+          allKeywords[id: keyword.id] = updateKeyword
         }
+        return .none
 
       case .destination:
         return .none
@@ -86,21 +97,29 @@ public struct ThoughtKeywordsCollectionView: View {
   public var body: some View {
     FlowLayout(alignment: .leading, spacing: 4) {
       ForEach(store.$keywords.elements) { $keyword in
-        HStack {
+        HStack(spacing: 4) {
           Image(systemName: "tag.fill")
           Text(keyword.name)
         }
-        .foregroundStyle((Color(hex: keyword.color.rawValue) ?? .primary).gradient)
+        .foregroundStyle(Color(.controlTextColor))
         .padding(6)
         .background {
           RoundedRectangle(cornerRadius: 5)
-            .fill(Color(.controlBackgroundColor))
+            .fill(Color(hex: keyword.color.rawValue)!.gradient)
         }
         .contextMenu {
           Button {
-            store.send(.deleteKeywordMenuTapped(keyword))
+            store.send(.deleteKeywordMenuTapped(keyword, destroy: false))
           } label: {
-            Label("Remove Keyword", systemImage: "")
+            Label("Remove keyword from this thought", systemImage: "trash.slash")
+              .labelStyle(.titleAndIcon)
+          }
+          
+          Button {
+            store.send(.deleteKeywordMenuTapped(keyword, destroy: true))
+          } label: {
+            Label("Destroy this keyword", systemImage: "trash")
+              .labelStyle(.titleAndIcon)
           }
           
           Button {
@@ -116,18 +135,19 @@ public struct ThoughtKeywordsCollectionView: View {
 }
 
 extension ConfirmationDialogState where Action == ThoughtKeywordsCollection.Destination.Alert {
-  static func deleteKeyword(_ keyword: Keyword) -> ConfirmationDialogState {
+  static func deleteKeyword(_ keyword: Keyword, destroy: Bool) -> ConfirmationDialogState {
     ConfirmationDialogState {
-      TextState("Delete the keyword \"\(keyword.name)\"?")
+      TextState(destroy ? "Destroy this keyword?" : "Delete the keyword \"\(keyword.name)\"?")
     } actions: {
       ButtonState(role: .cancel, action: .confirmCancel) {
         TextState("Cancel")
       }
-      ButtonState(role: .destructive, action: .confirmDelete) {
-        TextState("Delete")
+      ButtonState(role: .destructive, action: .confirmDelete(keyword, destroy: destroy)) {
+        TextState(destroy ? "Destroy" : "Delete")
       }
     } message: {
-      TextState("Are you sure to delete \"\(keyword.name)\"?")
+      let action = destroy ? "destroy" : "delete"
+      return TextState("Are you sure to \(action) \"\(keyword.name)\"?")
     }
   }
 }

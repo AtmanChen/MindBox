@@ -144,7 +144,10 @@ public struct AppView: View {
   }
   public var body: some View {
     NavigationSplitView(columnVisibility: $store.columnVisibility) {
-      BoxListView(store: store.scope(state: \.boxList, action: \.boxList))
+      VStack {
+        BoxListView(store: store.scope(state: \.boxList, action: \.boxList))
+        
+      }
     } content: {
       if let thoughtListStore = store.scope(state: \.thoughtList, action: \.thoughtList) {
         ThoughtListView(store: thoughtListStore)

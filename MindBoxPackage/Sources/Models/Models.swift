@@ -95,6 +95,7 @@ public struct Box: Equatable, Identifiable, Codable, Hashable {
   public var updateDate: Date
   public var parentBoxId: UUID?
   public var color: BoxThemeColor
+  public var expanded: Bool = false
 
   public init(id: UUID, updateDate: Date, parentBoxId: UUID? = nil) {
     self.id = id

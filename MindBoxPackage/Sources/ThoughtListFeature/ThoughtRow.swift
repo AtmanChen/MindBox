@@ -70,6 +70,15 @@ public struct ThoughtRowView: View {
       }
     }
     .tag(store.thought.id.uuidString)
+    .contextMenu {
+      Divider()
+      Button(role: .destructive) {
+        
+      } label: {
+        Label("Delete", systemImage: "trash")
+          .labelStyle(.titleAndIcon)
+      }
+    }
   }
 }
 

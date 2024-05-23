@@ -27,7 +27,6 @@ public struct RecursiveBoxRow {
   public struct State: Equatable {
     @Shared var box: Box
     @Shared var subBoxes: IdentifiedArrayOf<Box>
-    var showSubBoxes = true
     @Shared(.inMemory("refreshBoxLocation")) var refreshBoxLocation: RefreshBoxLocation?
     @Presents var destination: Destination.State?
     var themePicker: BoxThemePicker.State
@@ -63,13 +62,23 @@ public struct RecursiveBoxRow {
         
       case .onAppear:
         return .none
+//        return .publisher { [boxIdString = state.box.id.uuidString] in
+//          @Shared(.appStorage("selectedBoxId")) var selectedBoxId: String?
+//          return $selectedBoxId.publisher
+//            .compactMap { $0 }
+//            .filter { $0 == boxIdString }
+//            .map { _ in Action.updateSelectCurrentBox }
+//        }
         
       case .themePicker:
         return .none
 
       case .toggleShowSubBoxes:
-        state.showSubBoxes.toggle()
+        state.box.expanded.toggle()
+        @Shared(.fileStorage(.boxes)) var boxes: IdentifiedArrayOf<Box> = []
+        boxes[id: state.box.id] = state.box
         return .none
+        
       }
     }
     .ifLet(\.$destination, action: \.destination)
@@ -102,7 +111,7 @@ public struct RecursiveBoxRowView: View {
           store.send(.toggleShowSubBoxes, animation: .bouncy)
         } label: {
           Image(systemName: "chevron.right")
-            .rotationEffect(.degrees(store.showSubBoxes ? 90 : 0))
+            .rotationEffect(.degrees(store.box.expanded ? 90 : 0))
         }
         .buttonStyle(.plain)
       } else {
@@ -115,7 +124,7 @@ public struct RecursiveBoxRowView: View {
     .tag(store.box.id.uuidString)
 
     if store.subBoxes.count > 0,
-       store.showSubBoxes {
+       store.box.expanded {
       ForEach(store.$subBoxes.elements) { $subBox in
         RecursiveBoxRowView(
           store: Store(
