@@ -16,7 +16,7 @@ public struct ThoughtList {
   
   @ObservableState
   public struct State: Equatable {
-    var box: Box
+    public private(set) var box: Box
     @Shared var thoughts: IdentifiedArrayOf<Thought>
     var selectedThoughtId: String?
     public init(box: Box, thoughts: Shared<IdentifiedArrayOf<Thought>>) {

@@ -61,8 +61,7 @@ public struct ThoughtKeywordPicker {
         return .none
         
       case .clearSearchTerm:
-        state.searchTerm = ""
-				return .send(.newKeywordUpdate)
+        return .send(.searchTermUpdate(""))
 				
 			case let .keywordSelectionUpdate(updateSelectedKeywords):
 				state.selectedKeywords = updateSelectedKeywords
@@ -75,12 +74,11 @@ public struct ThoughtKeywordPicker {
 				return .none
 				
 			case .newKeywordUpdate:
-				if state.selectedKeywords.isEmpty && state.keywords.isEmpty {
+        if state.selectedKeywords.isEmpty && state.keywords.isEmpty && !state.searchTerm.isEmpty {
 					state.newKeyword = NewKeyword.State(searchTerm: state.searchTerm)
 				} else {
 					state.newKeyword = nil
 				}
-				debugPrint("NewKeyword: \(state.newKeyword) \(state.searchTerm)")
 				return .none
 				
 			case let .searchTermUpdate(updateSearchTerm):
@@ -145,12 +143,6 @@ public struct ThoughtKeywordPickerView: View {
           Text("Add keywords to thought")
         }
       } else if store.keywords.isEmpty {
-//        NewKeywordView(
-//          store: Store(
-//            initialState: NewKeyword.State(searchTerm: store.searchTerm),
-//            reducer: { NewKeyword() }
-//          )
-//        )
 				if let newKeywordStore = store.scope(state: \.newKeyword, action: \.newKeyword) {
 					NewKeywordView(store: newKeywordStore)
 				}

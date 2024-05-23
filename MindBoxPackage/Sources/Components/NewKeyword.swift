@@ -1,13 +1,13 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by lambert on 2024/5/22.
 //
 
-import SwiftUI
 import ComposableArchitecture
 import Models
+import SwiftUI
 import Utils
 
 @Reducer
@@ -27,11 +27,11 @@ public struct NewKeyword {
     case binding(BindingAction<State>)
     case colorDidTapped(KeywordThemeColor)
     case createNewKeywordButtonTapped
-		case delegate(Delegate)
+    case delegate(Delegate)
 		
-		public enum Delegate {
-			case keywordAdded
-		}
+    public enum Delegate {
+      case keywordAdded
+    }
   }
   
   public var body: some ReducerOf<Self> {
@@ -53,10 +53,10 @@ public struct NewKeyword {
         @Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
         let keyword = Keyword(id: uuid(), name: state.searchTerm, color: state.selectedColor, thoughtIds: [])
         allKeywords[id: keyword.id] = keyword
-				return .send(.delegate(.keywordAdded), animation: .bouncy)
+        return .send(.delegate(.keywordAdded), animation: .bouncy)
 				
-			case .delegate:
-				return .none
+      case .delegate:
+        return .none
       }
     }
   }
@@ -67,6 +67,7 @@ public struct NewKeywordView: View {
   public init(store: StoreOf<NewKeyword>) {
     self.store = store
   }
+
   public var body: some View {
     VStack {
       HStack {
@@ -78,13 +79,13 @@ public struct NewKeywordView: View {
               store.send(.colorDidTapped(color), animation: .bouncy)
             }
         }
-        Button {
-          store.send(.createNewKeywordButtonTapped)
-        } label: {
-          Text("Create as new Keyword")
-        }
-        .disabled(store.searchTerm.isEmpty)
       }
+      Button {
+        store.send(.createNewKeywordButtonTapped)
+      } label: {
+        Text("Create as new Keyword")
+      }
+      .disabled(store.searchTerm.isEmpty)
     }
   }
 }

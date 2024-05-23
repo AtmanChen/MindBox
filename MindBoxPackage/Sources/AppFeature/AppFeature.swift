@@ -107,6 +107,10 @@ public struct AppLogic {
              let boxId = UUID(uuidString: boxIdString),
              let box = state.boxes[id: boxId] {
             state.thoughts = state.allThoughts.filter { $0.boxId == box.id }
+            if state.thoughtList?.box.id != boxId {
+              state.selectedThoughtId = nil
+              state.thoughtDetail = nil
+            }
             state.thoughtList = ThoughtList.State(box: box, thoughts: state.$thoughts)
           } else {
             state.thoughtList = nil

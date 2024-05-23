@@ -68,6 +68,9 @@ public struct BoxListView: View {
         ContentUnavailableView("Create A New Mind Box", systemImage: "lightbulb.2.fill")
       } else {
         List(selection: $store.selectedBoxId) {
+          Text("Boxes")
+            .font(.title)
+            .bold()
           ForEach(store.boxes) { box in
             RecursiveBoxRowView(
               store: Store(
