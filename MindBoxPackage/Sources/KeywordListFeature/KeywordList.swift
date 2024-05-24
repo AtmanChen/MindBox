@@ -18,8 +18,19 @@ public struct KeywordList {
   
   @ObservableState
   public struct State: Equatable {
-    @Shared(.fileStorage(.keywords)) var keywords: IdentifiedArrayOf<Keyword> = []
-    public init() {}
+    var keywords: IdentifiedArrayOf<Keyword>
+    public init() {
+      @Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
+      @Shared(.inMemory("keywordsWindowURL")) var keywordsWindowURL: URL?
+      debugPrint("keywordsWindowURL: \(keywordsWindowURL)")
+      if let url = keywordsWindowURL,
+         let keywordId = UUID(uuidString: url.lastPathComponent),
+         let keyword = allKeywords[id: keywordId] {
+        keywords = [keyword]
+      } else {
+        keywords = allKeywords
+      }
+    }
   }
   
   public enum Action: BindableAction {

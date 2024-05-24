@@ -7,6 +7,7 @@
 
 import AppFeature
 import KeywordsWindowFeature
+import Constants
 import ComposableArchitecture
 import SwiftUI
 
@@ -23,6 +24,7 @@ struct MindBoxApp: App {
         )
       )
     }
+    .handlesExternalEvents(matching: Set(arrayLiteral: WindowTag.mainWindowPrefix))
     
     WindowGroup("Keywords") {
       KeywordsWindowView(
@@ -33,5 +35,6 @@ struct MindBoxApp: App {
       )
     }
     .defaultSize(CGSize(width: 600, height: 500))
+    .handlesExternalEvents(matching: Set(arrayLiteral: WindowTag.keywordsWindowPrefix))
   }
 }

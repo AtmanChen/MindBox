@@ -12,6 +12,7 @@
 		1D560A352BFB32380081FFDF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1D560A342BFB32380081FFDF /* Preview Assets.xcassets */; };
 		1D560A3E2BFB4FB60081FFDF /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 1D560A3D2BFB4FB60081FFDF /* AppFeature */; };
 		1D6051F72C002C7700405FB9 /* KeywordsWindowFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 1D6051F62C002C7700405FB9 /* KeywordsWindowFeature */; };
+		1D6051F92C0038B000405FB9 /* Constants in Frameworks */ = {isa = PBXBuildFile; productRef = 1D6051F82C0038B000405FB9 /* Constants */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		1D560A322BFB32380081FFDF /* MindBox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MindBox.entitlements; sourceTree = "<group>"; };
 		1D560A342BFB32380081FFDF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1D560A3B2BFB33A10081FFDF /* MindBoxPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MindBoxPackage; sourceTree = SOURCE_ROOT; };
+		1D6051FA2C003EC400405FB9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -29,6 +31,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1D560A3E2BFB4FB60081FFDF /* AppFeature in Frameworks */,
+				1D6051F92C0038B000405FB9 /* Constants in Frameworks */,
 				1D6051F72C002C7700405FB9 /* KeywordsWindowFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -57,6 +60,7 @@
 		1D560A2B2BFB32370081FFDF /* MindBox */ = {
 			isa = PBXGroup;
 			children = (
+				1D6051FA2C003EC400405FB9 /* Info.plist */,
 				1D560A2C2BFB32370081FFDF /* MindBoxApp.swift */,
 				1D560A302BFB32380081FFDF /* Assets.xcassets */,
 				1D560A322BFB32380081FFDF /* MindBox.entitlements */,
@@ -99,6 +103,7 @@
 			packageProductDependencies = (
 				1D560A3D2BFB4FB60081FFDF /* AppFeature */,
 				1D6051F62C002C7700405FB9 /* KeywordsWindowFeature */,
+				1D6051F82C0038B000405FB9 /* Constants */,
 			);
 			productName = MindBox;
 			productReference = 1D560A292BFB32370081FFDF /* MindBox.app */;
@@ -288,6 +293,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MindBox/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -326,6 +332,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MindBox/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -382,6 +389,10 @@
 		1D6051F62C002C7700405FB9 /* KeywordsWindowFeature */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = KeywordsWindowFeature;
+		};
+		1D6051F82C0038B000405FB9 /* Constants */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Constants;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -22,6 +22,10 @@ let package = Package(
       name: "BoxRowFeature",
       targets: ["BoxRowFeature"]),
     .library(
+      name: "Constants",
+      targets: ["Constants"]
+    ),
+    .library(
       name: "Components",
       targets: ["Components"]),
 //    .library(
@@ -63,6 +67,7 @@ let package = Package(
       "ThoughtListFeature",
       "KeywordListFeature",
       "ThoughtDetailFeature",
+      "Constants",
       .SCA,
     ]),
     .target(name: "BoxListFeature", dependencies: [
@@ -84,6 +89,10 @@ let package = Package(
       "Models",
     ]),
     .target(
+      name: "Constants",
+      dependencies: []
+    ),
+    .target(
       name: "Database",
       dependencies: [
         "Models",
@@ -104,6 +113,7 @@ let package = Package(
         .SCA,
         "Utils",
         "Components",
+        "Constants",
       ]
     ),
     .target(
@@ -115,6 +125,7 @@ let package = Package(
         "Components",
         "KeywordListFeature",
         "ThoughtDetailFeature",
+        "Constants",
       ]
     ),
     .target(
@@ -136,6 +147,7 @@ let package = Package(
         "Utils",
         .SCA,
         .TAGGED,
+        "Constants",
       ]
     ),
     .target(

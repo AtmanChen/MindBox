@@ -58,8 +58,10 @@ public struct KeywordsWindow {
         return .none
         
       case .onAppear:
+        @Shared(.inMemory("keywordsWindowURL")) var keywordsWindowURL: URL?
+        keywordsWindowURL = nil
         return .publisher {
-          return state.$selectedThoughtIdInKeyword.publisher
+          state.$selectedThoughtIdInKeyword.publisher
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .map(Action.didSelectThought)

@@ -7,6 +7,7 @@
 
 import Components
 import ComposableArchitecture
+import Constants
 import Models
 import SwiftUI
 import Utils
@@ -31,6 +32,7 @@ public struct ThoughtKeywordsCollection {
     @Shared var thought: Thought
     @Shared var keywords: IdentifiedArrayOf<Keyword>
     @Presents var destination: Destination.State?
+    @Shared(.inMemory("keywordsWindowURL")) var keywordsWindowURL: URL?
     public init(thought: Shared<Thought>) {
       self._thought = thought
       @Shared(.fileStorage(.keywords)) var allKeywords: IdentifiedArrayOf<Keyword> = []
@@ -43,6 +45,8 @@ public struct ThoughtKeywordsCollection {
     case deleteKeywordMenuTapped(Keyword, destroy: Bool)
     case destination(PresentationAction<Destination.Action>)
     case openAllThoughtsForKeyword(Keyword)
+    case openAllKeywords
+    case openKeywordWindow(URL)
   }
   
   public var body: some ReducerOf<Self> {
@@ -79,9 +83,35 @@ public struct ThoughtKeywordsCollection {
       case .destination:
         return .none
         
-      case .openAllThoughtsForKeyword:
-        // TODO: open all thoughts for Keyword
+      case let .openAllThoughtsForKeyword(keyword):
+        #if os(macOS)
+        let keywordsWindowString = WindowTag.keywordsWindow(keywordIdString: keyword.id.uuidString).windowString
+        guard let keywordsWindowURL = URL(string: keywordsWindowString) else {
+          return .none
+        }
+        return .send(.openKeywordWindow(keywordsWindowURL))
+        #else
         return .none
+        #endif
+        
+      case .openAllKeywords:
+        #if os(macOS)
+        let keywordsWindowString = WindowTag.keywordsWindow(keywordIdString: nil).windowString
+        guard let keywordsWindowURL = URL(string: keywordsWindowString) else {
+          return .none
+        }
+        return .send(.openKeywordWindow(keywordsWindowURL))
+        #else
+        return .none
+        #endif
+        
+      case let .openKeywordWindow(url):
+        state.keywordsWindowURL = url
+        return .run { @MainActor _ in
+          #if os(macOS)
+          NSWorkspace.shared.open(url)
+          #endif
+        }
       }
     }
     .ifLet(\.$destination, action: \.destination)
@@ -125,7 +155,13 @@ public struct ThoughtKeywordsCollectionView: View {
           Button {
             store.send(.openAllThoughtsForKeyword(keyword))
           } label: {
-            Label("Show all thoughts for keyword", systemImage: "")
+            Label("Open all thoughts for keyword", systemImage: "")
+          }
+          
+          Button {
+            store.send(.openAllKeywords)
+          } label: {
+            Label("Open all keywords", systemImage: "")
           }
         }
       }
