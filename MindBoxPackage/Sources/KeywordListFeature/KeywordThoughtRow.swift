@@ -19,7 +19,6 @@ public struct KeywordThoughtRowView: View {
         HStack(spacing: 4) {
           Image(systemName: thought.status.systemImageName)
           Text(thought.status.description)
-          
         }
         .font(.caption)
         .foregroundColor(.white)

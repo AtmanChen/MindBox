@@ -20,6 +20,7 @@ public struct KeywordRow {
   public struct State: Equatable {
     public var keyword: Keyword
     public var thoughts: IdentifiedArrayOf<Thought>
+    @Shared(.inMemory("selectedThoughtIdInKeyword")) var selectedThoughtIdInKeyword: String?
     public init(keyword: Keyword) {
       self.keyword = keyword
       @Shared(.fileStorage(.thoughts)) var allThoughts: IdentifiedArrayOf<Thought> = []
@@ -30,6 +31,7 @@ public struct KeywordRow {
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case deleteKeywordMenuTapped
+    case didSelectThought(String)
     case onAppear
     case openAllThoughtsForKeyword
     case toggleKeywordExpanded
@@ -46,6 +48,10 @@ public struct KeywordRow {
         return .none
         
       case .deleteKeywordMenuTapped:
+        return .none
+        
+      case let .didSelectThought(thoughtId):
+        state.selectedThoughtIdInKeyword = thoughtId
         return .none
         
       case .onAppear:
@@ -126,7 +132,15 @@ public struct KeywordRowView: View {
     if store.keyword.expanded {
       ForEach(store.thoughts) { thought in
         KeywordThoughtRowView(thought: thought)
-          .padding(.leading, 4)
+          .padding(8)
+          .background {
+            RoundedRectangle(cornerRadius: 5)
+              .fill(thought.id.uuidString == store.selectedThoughtIdInKeyword ? Color(hex: store.keyword.color.rawValue)!.opacity(0.3) : Color.clear)
+          }
+          .contentShape(Rectangle())
+          .onTapGesture {
+            store.send(.didSelectThought(thought.id.uuidString), animation: .default)
+          }
       }
     }
   }

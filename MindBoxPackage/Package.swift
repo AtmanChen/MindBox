@@ -30,10 +30,21 @@ let package = Package(
     .library(
       name: "Models",
       targets: ["Models"]),
-    .library(name: "KeywordListFeature", targets: ["KeywordListFeature"]),
+    .library(
+      name: "KeywordListFeature",
+      targets: ["KeywordListFeature"]
+    ),
+    .library(
+      name: "KeywordsWindowFeature",
+      targets: ["KeywordsWindowFeature"]
+    ),
     .library(
       name: "ThoughtListFeature",
       targets: ["ThoughtListFeature"]),
+    .library(
+      name: "ThoughtDetailFeature",
+      targets: ["ThoughtDetailFeature"]
+    ),
     .library(
       name: "Utils",
       targets: ["Utils"]),
@@ -51,6 +62,7 @@ let package = Package(
       "Utils",
       "ThoughtListFeature",
       "KeywordListFeature",
+      "ThoughtDetailFeature",
       .SCA,
     ]),
     .target(name: "BoxListFeature", dependencies: [
@@ -95,7 +107,29 @@ let package = Package(
       ]
     ),
     .target(
+      name: "KeywordsWindowFeature",
+      dependencies: [
+        "Models",
+        .SCA,
+        "Utils",
+        "Components",
+        "KeywordListFeature",
+        "ThoughtDetailFeature",
+      ]
+    ),
+    .target(
       name: "ThoughtListFeature",
+      dependencies: [
+        "Components",
+        "Models",
+        "Utils",
+        .SCA,
+        .TAGGED,
+        "ThoughtDetailFeature",
+      ]
+    ),
+    .target(
+      name: "ThoughtDetailFeature",
       dependencies: [
         "Components",
         "Models",

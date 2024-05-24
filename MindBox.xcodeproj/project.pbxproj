@@ -11,6 +11,7 @@
 		1D560A312BFB32380081FFDF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1D560A302BFB32380081FFDF /* Assets.xcassets */; };
 		1D560A352BFB32380081FFDF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1D560A342BFB32380081FFDF /* Preview Assets.xcassets */; };
 		1D560A3E2BFB4FB60081FFDF /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 1D560A3D2BFB4FB60081FFDF /* AppFeature */; };
+		1D6051F72C002C7700405FB9 /* KeywordsWindowFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 1D6051F62C002C7700405FB9 /* KeywordsWindowFeature */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1D560A3E2BFB4FB60081FFDF /* AppFeature in Frameworks */,
+				1D6051F72C002C7700405FB9 /* KeywordsWindowFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,6 +98,7 @@
 			name = MindBox;
 			packageProductDependencies = (
 				1D560A3D2BFB4FB60081FFDF /* AppFeature */,
+				1D6051F62C002C7700405FB9 /* KeywordsWindowFeature */,
 			);
 			productName = MindBox;
 			productReference = 1D560A292BFB32370081FFDF /* MindBox.app */;
@@ -375,6 +378,10 @@
 		1D560A3D2BFB4FB60081FFDF /* AppFeature */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppFeature;
+		};
+		1D6051F62C002C7700405FB9 /* KeywordsWindowFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = KeywordsWindowFeature;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

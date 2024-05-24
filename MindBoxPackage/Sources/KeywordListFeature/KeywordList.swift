@@ -19,7 +19,6 @@ public struct KeywordList {
   @ObservableState
   public struct State: Equatable {
     @Shared(.fileStorage(.keywords)) var keywords: IdentifiedArrayOf<Keyword> = []
-    @Shared(.appStorage("selectedKeywordId")) var selectedKeywordId: String?
     public init() {}
   }
   

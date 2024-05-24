@@ -6,19 +6,12 @@
 //
 
 import AppFeature
+import KeywordsWindowFeature
 import ComposableArchitecture
-import SwiftData
 import SwiftUI
 
 @main
 struct MindBoxApp: App {
-//  @Dependency(\.database) var database
-//  private var modelContext: ModelContext {
-//    guard let modelContext = try? database.context() else {
-//      fatalError("Could not find modelContext")
-//    }
-//    return modelContext
-//  }
   var body: some Scene {
     WindowGroup {
       AppView(
@@ -30,6 +23,15 @@ struct MindBoxApp: App {
         )
       )
     }
-//    .modelContext(modelContext)
+    
+    WindowGroup("Keywords") {
+      KeywordsWindowView(
+        store: Store(
+          initialState: KeywordsWindow.State(),
+          reducer: { KeywordsWindow() }
+        )
+      )
+    }
+    .defaultSize(CGSize(width: 600, height: 500))
   }
 }

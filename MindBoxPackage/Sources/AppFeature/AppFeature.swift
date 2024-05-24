@@ -13,6 +13,7 @@ import SwiftUI
 import ThoughtListFeature
 import KeywordListFeature
 import Combine
+import ThoughtDetailFeature
 
 @Reducer
 public struct AppLogic {
